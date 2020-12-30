@@ -21,31 +21,29 @@ class Car:
         self.width = 25
 
         #Car
-        self.ld = np.array([[x], [y]])                 #ld = left-down
-        self.rd = np.array([[x + self.width], [y]])
-        self.lu = np.array([[x], [y - self.height]])
-        self.ru = np.array([[x + self.width], [y - self.height]])
+        self.body = np.array([[x, x + self.width, x + self.width, x],
+                            [y, y, y - self.height, y - self.height]])                 #ld = left-down
 
         #Distance sensors
-        self.sensor_left = [np.array([[x], [y - 30]]), np.array([[x - 90], [y - 30]])]
-        self.sensor_left_up = [np.array([[x], [y - 45]]), np.array([[x - 120], [y - 200]])]
-        self.sensor_right = [np.array([[x + self.width], [y - 30]]), np.array([[x + self.width + 90], [y - 30]])]
-        self.sensor_right_up = [np.array([[x + self.width], [y - 45]]), np.array([[x + self.width + 120], [y - 200]])]
-        self.sensor_up = [np.array([[x + self.width/2.0], [y - self.height]]), np.array([[x + self.width/2.0], [y - self.height - 300]])]
+        self.sensors = np.array([[x, x - 90, x, x - 120, x + self.width, x + self.width + 90, x + self.width, x + self.width + 120, x + self.width/2.0, x + self.width/2.0],
+                                     [y - 30, y - 30, y - 45, y - 200, y - 30, y - 30, y - 45, y - 200, y - self.height, y - self.height - 300]])
+
 
         """
-        self.left = self.cvs.create_line(self.sensor_left[0][0][0], self.sensor_left[0][1][0], self.sensor_left[1][0][0], self.sensor_left[1][1][0])
-        self.left_up = self.cvs.create_line(self.sensor_left_up[0][0][0], self.sensor_left_up[0][1][0], self.sensor_left_up[1][0][0], self.sensor_left_up[1][1][0])
-        self.right = self.cvs.create_line(self.sensor_right[0][0][0], self.sensor_right[0][1][0], self.sensor_right[1][0][0], self.sensor_right[1][1][0])
-        self.right_up = self.cvs.create_line(self.sensor_right_up[0][0][0], self.sensor_right_up[0][1][0], self.sensor_right_up[1][0][0], self.sensor_right_up[1][1][0])
-        self.up = self.cvs.create_line(self.sensor_up[0][0][0], self.sensor_up[0][1][0], self.sensor_up[1][0][0], self.sensor_up[1][1][0])
+        self.left = self.cvs.create_line(self.sensors[0][0], self.sensors[1][0], self.sensors[0][1], self.sensors[1][1])
+        self.left_up = self.cvs.create_line(self.sensors[0][2], self.sensors[1][2], self.sensors[0][3], self.sensors[1][3])
+        self.right = self.cvs.create_line(self.sensors[0][4], self.sensors[1][4], self.sensors[0][5], self.sensors[1][5])
+        self.right_up = self.cvs.create_line(self.sensors[0][6], self.sensors[1][6], self.sensors[0][7], self.sensors[1][7])
+        self.up = self.cvs.create_line(self.sensors[0][8], self.sensors[1][8], self.sensors[0][9], self.sensors[1][9])
         """
+
 
         self.sensor_left_data = [0, 0, 0]             #[min_x_val, min_y_val, distance]
         self.sensor_left_up_data = [0, 0, 0]
         self.sensor_right_data = [0, 0, 0]
         self.sensor_right_up_data = [0, 0, 0]
         self.sensor_up_data = [0, 0, 0]
+
         """
         self.left_cross = [self.cvs.create_line(self.sensor_left_data[0] - 3, self.sensor_left_data[1], self.sensor_left_data[0] + 3, self.sensor_left_data[1], fill = 'white'), self.cvs.create_line(self.sensor_left_data[0], self.sensor_left_data[1] - 3, self.sensor_left_data[0], self.sensor_left_data[1] + 3, fill = 'white')]
         self.left_up_cross = [self.cvs.create_line(self.sensor_left_up_data[0] - 3, self.sensor_left_up_data[1], self.sensor_left_up_data[0] + 3, self.sensor_left_up_data[1], fill = 'white'), self.cvs.create_line(self.sensor_left_up_data[0], self.sensor_left_up_data[1] - 3, self.sensor_left_up_data[0],self.sensor_left_up_data[1] + 3, fill = 'white')]
@@ -55,19 +53,22 @@ class Car:
         """
 
         #Window
-        self.ld_w = np.array([[x + 2], [y - 35]])  # ld = left-down
-        self.rd_w = np.array([[x + self.width - 2], [y - 35]])
-        self.lu_w = np.array([[x + 2], [y - self.height]])
-        self.ru_w = np.array([[x + self.width - 2], [y - self.height]])
+        self.w = np.array([[x + 2, x + self.width - 2, x + self.width - 2, x + 2],
+                              [y - 35, y - 35, y - self.height, y - self.height]])  # ld = left-down
 
         self.color_glas = 'LightBlue3'
         self.color_car = 'red3'
 
-        self.car = self.cvs.create_polygon(self.ld[0][0], self.ld[1][0], self.rd[0][0], self.rd[1][0], self.ru[0][0],
-                                       self.ru[1][0], self.lu[0][0], self.lu[1][0], fill=self.color_car)
-        self.wdw = self.cvs.create_polygon(self.ld_w[0][0], self.ld_w[1][0], self.rd_w[0][0], self.rd_w[1][0],
-                                       self.ru_w[0][0], self.ru_w[1][0], self.lu_w[0][0], self.lu_w[1][0],
-                                       fill=self.color_glas)
+        self.car = self.cvs.create_polygon(self.body[0][0], self.body[1][0],
+                                           self.body[0][1], self.body[1][1],
+                                           self.body[0][2], self.body[1][2],
+                                           self.body[0][3], self.body[1][3],
+                                           fill=self.color_car)
+        self.wdw = self.cvs.create_polygon(self.w[0][0], self.w[1][0],
+                                           self.w[0][1], self.w[1][1],
+                                           self.w[0][2], self.w[1][2],
+                                           self.w[0][3], self.w[1][3],
+                                           fill=self.color_glas)
 
 
         #Physichal constants
@@ -96,14 +97,14 @@ class Car:
     def update_car(self):
         self.cvs.delete(self.car)
         self.cvs.delete(self.wdw)
+
         """
         self.cvs.delete(self.left)
         self.cvs.delete(self.left_up)
         self.cvs.delete(self.right)
         self.cvs.delete(self.right_up)
         self.cvs.delete(self.up)
-        """
-        """
+
         self.cvs.delete(self.left_cross[0])
         self.cvs.delete(self.left_cross[1])
         self.cvs.delete(self.left_up_cross[0])
@@ -116,17 +117,28 @@ class Car:
         self.cvs.delete(self.up_cross[1])
         """
 
-        self.car = self.cvs.create_polygon(self.ld[0][0], self.ld[1][0], self.rd[0][0], self.rd[1][0], self.ru[0][0], self.ru[1][0], self.lu[0][0], self.lu[1][0], fill = self.color_car)
-        self.wdw = self.cvs.create_polygon(self.ld_w[0][0], self.ld_w[1][0], self.rd_w[0][0], self.rd_w[1][0], self.ru_w[0][0], self.ru_w[1][0], self.lu_w[0][0], self.lu_w[1][0], fill=self.color_glas)
 
+        self.car = self.cvs.create_polygon(self.body[0][0], self.body[1][0],
+                                           self.body[0][1], self.body[1][1],
+                                           self.body[0][2], self.body[1][2],
+                                           self.body[0][3], self.body[1][3],
+                                           fill=self.color_car)
+        self.wdw = self.cvs.create_polygon(self.w[0][0], self.w[1][0],
+                                           self.w[0][1], self.w[1][1],
+                                           self.w[0][2], self.w[1][2],
+                                           self.w[0][3], self.w[1][3],
+                                           fill=self.color_glas)
         """
-        self.left = self.cvs.create_line(self.sensor_left[0][0][0], self.sensor_left[0][1][0],self.sensor_left[1][0][0], self.sensor_left[1][1][0])
-        self.left_up = self.cvs.create_line(self.sensor_left_up[0][0][0], self.sensor_left_up[0][1][0],self.sensor_left_up[1][0][0], self.sensor_left_up[1][1][0])
-        self.right = self.cvs.create_line(self.sensor_right[0][0][0], self.sensor_right[0][1][0],self.sensor_right[1][0][0], self.sensor_right[1][1][0])
-        self.right_up = self.cvs.create_line(self.sensor_right_up[0][0][0], self.sensor_right_up[0][1][0],self.sensor_right_up[1][0][0], self.sensor_right_up[1][1][0])
-        self.up = self.cvs.create_line(self.sensor_up[0][0][0], self.sensor_up[0][1][0], self.sensor_up[1][0][0],self.sensor_up[1][1][0])
-        """
-        """
+        self.left = self.cvs.create_line(self.sensors[0][0], self.sensors[1][0], self.sensors[0][1], self.sensors[1][1])
+        self.left_up = self.cvs.create_line(self.sensors[0][2], self.sensors[1][2], self.sensors[0][3],
+                                            self.sensors[1][3])
+        self.right = self.cvs.create_line(self.sensors[0][4], self.sensors[1][4], self.sensors[0][5],
+                                          self.sensors[1][5])
+        self.right_up = self.cvs.create_line(self.sensors[0][6], self.sensors[1][6], self.sensors[0][7],
+                                             self.sensors[1][7])
+        self.up = self.cvs.create_line(self.sensors[0][8], self.sensors[1][8], self.sensors[0][9], self.sensors[1][9])
+
+
         self.left_cross = [self.cvs.create_line(self.sensor_left_data[0] - 3, self.sensor_left_data[1], self.sensor_left_data[0] + 3,self.sensor_left_data[1], fill='white'),self.cvs.create_line(self.sensor_left_data[0], self.sensor_left_data[1] - 3, self.sensor_left_data[0],self.sensor_left_data[1] + 3, fill='white')]
         self.left_up_cross = [self.cvs.create_line(self.sensor_left_up_data[0] - 3, self.sensor_left_up_data[1],self.sensor_left_up_data[0] + 3, self.sensor_left_up_data[1],fill='white'),self.cvs.create_line(self.sensor_left_up_data[0], self.sensor_left_up_data[1] - 3,self.sensor_left_up_data[0], self.sensor_left_up_data[1] + 3,fill='white')]
         self.right_cross = [self.cvs.create_line(self.sensor_right_data[0] - 3, self.sensor_right_data[1],self.sensor_right_data[0] + 3, self.sensor_right_data[1],fill='white'),self.cvs.create_line(self.sensor_right_data[0], self.sensor_right_data[1] - 3,self.sensor_right_data[0], self.sensor_right_data[1] + 3,fill='white')]
@@ -137,22 +149,13 @@ class Car:
     def rotate_car(self):
         angle = self.angle - self.angle_prev
         self.angle_prev = self.angle
-        center = (self.ld + self.rd + self.lu + self.ru)/4.0
+        center = np.matmul(self.body, np.array([[1], [1], [1], [1]])) / 4.0
         rotation_mat = np.array([[np.cos(np.pi * angle/180.0), np.sin(np.pi * angle/180.0)], [-np.sin(np.pi * angle/180.0), np.cos(np.pi * angle/180.0)]])
-        self.ld = np.matmul(rotation_mat, (self.ld - center)) + center
-        self.rd = np.matmul(rotation_mat, (self.rd - center)) + center
-        self.lu = np.matmul(rotation_mat, (self.lu - center)) + center
-        self.ru = np.matmul(rotation_mat, (self.ru - center)) + center
-        self.ld_w = np.matmul(rotation_mat, (self.ld_w - center)) + center
-        self.rd_w = np.matmul(rotation_mat, (self.rd_w - center)) + center
-        self.lu_w = np.matmul(rotation_mat, (self.lu_w - center)) + center
-        self.ru_w = np.matmul(rotation_mat, (self.ru_w - center)) + center
 
-        self.sensor_left = [np.matmul(rotation_mat, (self.sensor_left[0] - center)) + center, np.matmul(rotation_mat, (self.sensor_left[1] - center)) + center]
-        self.sensor_left_up = [np.matmul(rotation_mat, (self.sensor_left_up[0] - center)) + center, np.matmul(rotation_mat, (self.sensor_left_up[1] - center)) + center]
-        self.sensor_right = [np.matmul(rotation_mat, (self.sensor_right[0] - center)) + center, np.matmul(rotation_mat, (self.sensor_right[1] - center)) + center]
-        self.sensor_right_up = [np.matmul(rotation_mat, (self.sensor_right_up[0] - center)) + center, np.matmul(rotation_mat, (self.sensor_right_up[1] - center)) + center]
-        self.sensor_up = [np.matmul(rotation_mat, (self.sensor_up[0] - center)) + center, np.matmul(rotation_mat, (self.sensor_up[1] - center)) + center]
+        self.body = np.matmul(rotation_mat, (self.body - center)) + center
+        self.w = np.matmul(rotation_mat, (self.w - center)) + center
+
+        self.sensors = np.matmul(rotation_mat, (self.sensors - center)) + center
 
 
     def calc_dynamics(self, thrust, omega):
@@ -181,55 +184,10 @@ class Car:
             self.vel_x = self.vel * np.sin(np.pi * ang / 180.0)
             self.vel_y = self.vel * np.cos(np.pi * ang / 180.0)
 
-            self.ld = self.ld + 10 * np.array([[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                               [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])
-            self.rd = self.rd + 10 * np.array([[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                               [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])
-            self.lu = self.lu + 10 * np.array([[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                               [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])
-            self.ru = self.ru + 10 * np.array([[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                               [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])
-            self.ld_w = self.ld_w + 10 * np.array([[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                                   [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])
-            self.rd_w = self.rd_w + 10 * np.array([[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                                   [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])
-            self.lu_w = self.lu_w + 10 * np.array([[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                                   [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])
-            self.ru_w = self.ru_w + 10 * np.array([[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                                   [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])
-
-            self.sensor_left = [self.sensor_left[0] + 10 * np.array(
-                [[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                 [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]]),
-                                self.sensor_left[1] + 10 * np.array(
-                                    [[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                     [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])]
-
-            self.sensor_left_up = [self.sensor_left_up[0] + 10 * np.array(
-                [[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                 [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]]),
-                                   self.sensor_left_up[1] + 10 * np.array(
-                                       [[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                        [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])]
-
-            self.sensor_right = [self.sensor_right[0] + 10 * np.array(
-                [[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                 [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]]),
-                                 self.sensor_right[1] + 10 * np.array(
-                                     [[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                      [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])]
-
-            self.sensor_right_up = [self.sensor_right_up[0] + 10 * np.array(
-                [[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                 [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]]),
-                                    self.sensor_right_up[1] + 10 * np.array(
-                                        [[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5],
-                                         [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])]
-
-            self.sensor_up = [self.sensor_up[0] + 10 * np.array([[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5], [
-                -(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]]),
-                              self.sensor_up[1] + 10 * np.array([[(self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5], [
-                                  -(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])]
+            const = np.array([[((self.vel_x + self.vel_x_prev) * (1 / freq) * 0.5)], [-(self.vel_y + self.vel_y_prev) * (1 / freq) * 0.5]])
+            self.body = self.body + 10 * np.array([[1, 1, 1, 1], [1, 1, 1, 1]]) * const
+            self.w = self.w + 10 * np.array([[1, 1, 1, 1], [1, 1, 1, 1]]) * const
+            self.sensors = self.sensors + 10 * np.array([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]) * const
 
             self.vel_x_prev = self.vel_x
             self.vel_y_prev = self.vel_y
@@ -253,10 +211,7 @@ class Car:
                 if (denominator_2 == 0):
                     denominator_2 = 0.0000001
 
-                x_val = (sensor[0][0] * (sensor[1][1] - sensor[0][1]) / (denominator_1) - sensor[0][1] - line[0][0] * (
-                            line[1][1] - line[0][1]) / (denominator_2) + line[0][1]) / (
-                                    (sensor[1][1] - sensor[0][1]) / (denominator_1) - (line[1][1] - line[0][1]) / (
-                                denominator_2))
+                x_val = (sensor[0][0] * (sensor[1][1] - sensor[0][1]) / (denominator_1) - sensor[0][1] - line[0][0] * (line[1][1] - line[0][1]) / (denominator_2) + line[0][1]) / ((sensor[1][1] - sensor[0][1]) / (denominator_1) - (line[1][1] - line[0][1]) / (denominator_2))
                 y_val = ((sensor[1][1] - sensor[0][1]) / (denominator_1)) * (x_val - sensor[0][0]) + sensor[0][1]
 
                 if (math.isinf(x_val) or math.isinf(y_val)):
@@ -266,7 +221,7 @@ class Car:
                 x_val = math.floor(x_val)
                 y_val = math.floor(y_val)
 
-                distance = np.sqrt((sensor[0][1] - (y_val / 1.0)) ** 2 + (sensor[0][0] - (x_val / 1.0)) ** 2)[0]
+                distance = np.sqrt((sensor[0][1] - (y_val / 1.0)) ** 2 + (sensor[0][0] - (x_val / 1.0)) ** 2)#[0]
 
                 if (distance < min_distance):
                     min_distance = distance
@@ -278,11 +233,12 @@ class Car:
 
 
     def update_sensor_values(self, map):
-        self.sensor_left_data = self.read_sensor_value(self.sensor_left, map)
-        self.sensor_left_up_data = self.read_sensor_value(self.sensor_left_up, map)
-        self.sensor_right_data = self.read_sensor_value(self.sensor_right, map)
-        self.sensor_right_up_data = self.read_sensor_value(self.sensor_right_up, map)
-        self.sensor_up_data = self.read_sensor_value(self.sensor_up, map)
+        self.sensor_left_data = self.read_sensor_value([[self.sensors[0][0], self.sensors[1][0]], [self.sensors[0][1], self.sensors[1][1]]], map)
+        self.sensor_left_up_data = self.read_sensor_value([[self.sensors[0][2], self.sensors[1][2]], [self.sensors[0][3], self.sensors[1][3]]], map)
+        self.sensor_right_data = self.read_sensor_value([[self.sensors[0][4], self.sensors[1][4]], [self.sensors[0][5], self.sensors[1][5]]], map)
+        self.sensor_right_up_data = self.read_sensor_value([[self.sensors[0][6], self.sensors[1][6]], [self.sensors[0][7], self.sensors[1][7]]], map)
+        self.sensor_up_data = self.read_sensor_value([[self.sensors[0][8], self.sensors[1][8]], [self.sensors[0][9], self.sensors[1][9]]], map)
+
 
     def check_crash(self):
         crash_distance = 5
@@ -295,15 +251,14 @@ class Car:
     def delete_car(self):
         self.cvs.delete(self.car)
         self.cvs.delete(self.wdw)
+
         """
         self.cvs.delete(self.left)
         self.cvs.delete(self.left_up)
         self.cvs.delete(self.right)
         self.cvs.delete(self.right_up)
         self.cvs.delete(self.up)
-        """
 
-        """
         self.cvs.delete(self.left_cross[0])
         self.cvs.delete(self.left_cross[1])
         self.cvs.delete(self.left_up_cross[0])
@@ -315,3 +270,4 @@ class Car:
         self.cvs.delete(self.up_cross[0])
         self.cvs.delete(self.up_cross[1])
         """
+
