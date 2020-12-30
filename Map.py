@@ -6,6 +6,7 @@ class Map:
     def __init__(self, cvs):
 
         self.cvs = cvs
+        self.gen = cvs.create_text(1300, 700,text = "Generation:      " + str(1), fill="darkblue",font="Times 20 italic bold")
         self.map_lines = [[(100, 750), (100, 400)], [(200, 750), (200, 450)], [(100, 400), (150, 320)], [(200, 450), (230, 400)], [(150, 320), (300, 320)],
                           [(230, 400), (320, 400)], [(300, 320), (300, 270)], [(320, 400), (420, 340)], [(420, 340), (420, 230)], [(300, 270), (220, 200)],
                           [(420, 230), (360, 200)], [(220, 200), (220, 90)], [(360, 200), (360, 120)], [(220, 90), (350, 10)], [(360, 120), (400, 80)],
@@ -19,3 +20,8 @@ class Map:
         for line in self.map_lines:
 
             self.cvs.create_line(line[0][0], line[0][1], line[1][0], line[1][1], width = 3)
+
+    def generation_control(self, num):
+
+        self.cvs.delete(self.gen)
+        self.gen = self.cvs.create_text(1300, 700,text = "Generation:      " + str(num), fill="darkblue",font="Times 20 italic bold")

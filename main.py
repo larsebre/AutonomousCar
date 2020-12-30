@@ -38,7 +38,9 @@ print(input_layer)
 
 brain = p.NeuralNetwork(input_layer, hidden_layer, output_layer)
 new_brain = copy.copy(brain)
+new_brain1 = copy.copy(brain)
 best_distance = 0
+generation = 1
 
 def max(a,b):
     if (a>b):
@@ -50,23 +52,22 @@ while True:
 
     new_generation = False
 
-    brain = new_brain
+    brain = copy.copy(new_brain)
+    brain1 = copy.copy(new_brain1)
 
-    for i in range(10):
+    for i in range(21):
         cars.append(c.Car(140, 700, cvs))
 
-    for i in range(len(cars)):
-        cars[i].brain = copy.copy(brain)
+    for i in range(21):
+        if (i < 14):
+            cars[i].brain = copy.copy(brain)
+        else:
+            cars[i].brain = copy.copy(brain1)
 
     # Add one random car each generation, with no enharitage from the others
-
     car1 = c.Car(140, 700, cvs)
     car1.brain = p.NeuralNetwork((1 - (np.random.rand(3,5) * 2)), (1 - (np.random.rand(4,3) * 2)), (1 - (np.random.rand(2,4) * 2)))
     cars.append(car1)
-    car2 = c.Car(140, 700, cvs)
-    car2.brain = p.NeuralNetwork((1 - (np.random.rand(3, 5) * 2)), (1 - (np.random.rand(4, 3) * 2)),
-                                 (1 - (np.random.rand(2, 4) * 2)))
-    cars.append(car2)
 
 
     for i in range(len(cars)):
@@ -84,7 +85,7 @@ while True:
 
             if (cars[i].crash == False):
                 omega = 50 * np.tanh(outputs[i][1][0])
-                thrust = 10000 + cars[0].u_max / (1 + np.exp(-outputs[i][0][0]))
+                thrust = 1000 + cars[0].u_max / (1 + np.exp(-outputs[i][0][0]))
                 cars[i].calc_dynamics(thrust, omega)
                 cars[i].calc_transelation(omega)
                 cars[i].update_sensor_values(map.map_lines)
@@ -92,11 +93,12 @@ while True:
                 outputs[i] = cars[i].brain.calculate_outputs(np.array([[cars[i].sensor_left_data[2]], [cars[i].sensor_left_up_data[2]], [cars[i].sensor_right_data[2]],[cars[i].sensor_right_up_data[2]], [cars[i].sensor_up_data[2]]]))
         
 
-        if (counter == 2):
-            # Manage 50Hz screen update, 50FPS
+        if (counter == 1):
+            # Manage 30Hz screen update, 30FPS
             for i in range(len(cars)):
                 cars[i].rotate_car()
                 cars[i].update_car()
+                map.generation_control(generation)
 
             window.update()
             counter = 0
@@ -108,14 +110,20 @@ while True:
                 check = check + 1
 
         if (check == len(cars)):
+            dist = 0
             for i in range(len(cars)):
+                if (cars[i].distance > dist):
+                    dist = cars[i].distance
+                    new_brain1 = copy.copy(cars[i].brain)
+
                 if (cars[i].distance > best_distance):
                     best_distance = cars[i].distance
-                    new_brain = cars[i].brain
+                    new_brain = copy.copy(cars[i].brain)
                 cars[i].delete_car()
 
             cars.clear()
             new_generation = True
+            generation = generation + 1
 
 
         while (time.time() - time_before) < period:
