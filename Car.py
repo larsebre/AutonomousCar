@@ -19,6 +19,8 @@ class Car:
         self.crash = False
         self.height = 50
         self.width = 25
+        self.finished = False
+        self.time = 0
 
         #Car
         self.body = np.array([[x, x + self.width, x + self.width, x],
@@ -176,6 +178,7 @@ class Car:
             self.vel_prev = self.vel
             self.angle_vel_prev = self.angle_vel
 
+        self.time = self.time + 1       #Keep track of time
 
     def calc_transelation(self, omega):
 
@@ -246,6 +249,14 @@ class Car:
             self.crash = True
             self.vel = 0
 
+    def read_goad_reached(self, goal_koord):
+
+        line = [[(goal_koord[0] - 70, goal_koord[1]), (goal_koord[0] + 70, goal_koord[1])]]
+
+        data = self.read_sensor_value([[self.sensors[0][8], self.sensors[1][8]], [self.sensors[0][9], self.sensors[1][9]]], line)   #checking just for the up sensor
+        if (data[2] <= 6):
+            self.finished = True
+            self.crash = True
 
 
     def delete_car(self):

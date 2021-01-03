@@ -25,7 +25,7 @@ period = 1.0/frequency
 counter = 0
 
 map = m.Map(cvs=cvs)
-map.print_map()
+map.load_maps('/Users/larseikbreirem/Desktop/Maskinlæring kurs/AutonomousCar/Tracks/CarTracks.txt')
 cars = []
 
 #Generate neural network
@@ -50,13 +50,21 @@ def max(a,b):
 
 while True:
 
+    #Change maps
+    map.erase_map()
+    map_index = random.randint(0, len(map.map_lines) - 1)
+    current_map = map.map_lines[map_index]
+    map.print_map(map_index)
+    start_koord = map.starts[map_index]
+    goal_koord = map.goals[map_index]
+
     new_generation = False
 
     brain = copy.copy(new_brain)
     brain1 = copy.copy(new_brain1)
 
     for i in range(21):
-        cars.append(c.Car(140, 700, cvs))
+        cars.append(c.Car(start_koord[0], start_koord[1], cvs))
 
     for i in range(21):
         if (i < 14):
@@ -65,7 +73,7 @@ while True:
             cars[i].brain = copy.copy(brain1)
 
     # Add one random car each generation, with no enharitage from the others
-    car1 = c.Car(140, 700, cvs)
+    car1 = c.Car(start_koord[0], start_koord[1], cvs)
     car1.brain = p.NeuralNetwork((1 - (np.random.rand(3,5) * 2)), (1 - (np.random.rand(4,3) * 2)), (1 - (np.random.rand(2,4) * 2)))
     cars.append(car1)
 
@@ -88,9 +96,11 @@ while True:
                 thrust = 1000 + cars[0].u_max / (1 + np.exp(-outputs[i][0][0]))
                 cars[i].calc_dynamics(thrust, omega)
                 cars[i].calc_transelation(omega)
-                cars[i].update_sensor_values(map.map_lines)
+                cars[i].update_sensor_values(current_map)
+                cars[i].read_goad_reached(goal_koord)
                 cars[i].check_crash()
                 outputs[i] = cars[i].brain.calculate_outputs(np.array([[cars[i].sensor_left_data[2]], [cars[i].sensor_left_up_data[2]], [cars[i].sensor_right_data[2]],[cars[i].sensor_right_up_data[2]], [cars[i].sensor_up_data[2]]]))
+
         
 
         if (counter == 1):
@@ -111,7 +121,10 @@ while True:
 
         if (check == len(cars)):
             dist = 0
+            finished_cars = []
             for i in range(len(cars)):
+                if (cars[i].finished == True):
+                    finished_cars.append(cars[i])
                 if (cars[i].distance > dist):
                     dist = cars[i].distance
                     new_brain1 = copy.copy(cars[i].brain)
@@ -120,6 +133,17 @@ while True:
                     best_distance = cars[i].distance
                     new_brain = copy.copy(cars[i].brain)
                 cars[i].delete_car()
+
+            best_car = finished_cars[0]
+            best_time = finished_cars[0].time
+            if (len(finished_cars) > 0):
+                for i in range(len(finished_cars)):
+                    if (finished_cars[i].time < best_time):
+                        best_car = finished_cars[i]
+                        best_time = finished_cars[i].time
+
+                new_brain = copy.copy(best_car.brain)
+                new_brain1 = copy.copy(best_car.brain)
 
             cars.clear()
             new_generation = True
