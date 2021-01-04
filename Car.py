@@ -78,9 +78,9 @@ class Car:
         self.length = 4.98 #m
         self.d = 0.6 #m, 2.2
         self.k = 0.24  #Drag coefficient
-        self.u_max = 11.98 * self.weight
+        self.u_max = 11.98 * self.weight - 6000
         self.v_max = 69.4
-        self.omega_max = 60 #Max degree of wheel angle
+        self.omega_max = 60 #Max degree of wheel angle. A bit unrealistic
 
         self.vel = 0.0
         self.vel_prev = 0.0
@@ -170,6 +170,8 @@ class Car:
             if (self.vel >= np.abs(self.v_max)):
                 self.vel = self.vel_prev
 
+            self.omega_max = 60 - (3/7.0) * abs(self.vel)               #To make it more realistic with reduced swing with high speeds
+
             self.distance = self.distance + (self.vel + self.vel_prev) * (1 / freq) * 0.5
 
             self.angle_vel = 10 * self.vel * (np.sin(np.pi * omega / 180.0)) / self.d
@@ -178,7 +180,9 @@ class Car:
             self.vel_prev = self.vel
             self.angle_vel_prev = self.angle_vel
 
-        self.time = self.time + 1       #Keep track of time
+        self.time = self.time + 1       #Keep track of time so that we can inherite from the fastes car
+        if (self.time >= 800):
+            self.crash = True
 
     def calc_transelation(self, omega):
 
@@ -214,7 +218,10 @@ class Car:
                 if (denominator_2 == 0):
                     denominator_2 = 0.0000001
 
-                x_val = (sensor[0][0] * (sensor[1][1] - sensor[0][1]) / (denominator_1) - sensor[0][1] - line[0][0] * (line[1][1] - line[0][1]) / (denominator_2) + line[0][1]) / ((sensor[1][1] - sensor[0][1]) / (denominator_1) - (line[1][1] - line[0][1]) / (denominator_2))
+                x_val = (sensor[0][0] * (sensor[1][1] - sensor[0][1]) / (denominator_1) - sensor[0][1] - line[0][
+                    0] * (line[1][1] - line[0][1]) / (denominator_2) + line[0][1]) / (
+                                (sensor[1][1] - sensor[0][1]) / (denominator_1) - (line[1][1] - line[0][1]) / (
+                            denominator_2))
                 y_val = ((sensor[1][1] - sensor[0][1]) / (denominator_1)) * (x_val - sensor[0][0]) + sensor[0][1]
 
                 if (math.isinf(x_val) or math.isinf(y_val)):
@@ -224,27 +231,27 @@ class Car:
                 x_val = math.floor(x_val)
                 y_val = math.floor(y_val)
 
-                distance = np.sqrt((sensor[0][1] - (y_val / 1.0)) ** 2 + (sensor[0][0] - (x_val / 1.0)) ** 2)#[0]
+                distance = np.sqrt((sensor[0][1] - (y_val / 1.0)) ** 2 + (sensor[0][0] - (x_val / 1.0)) ** 2)  # [0]
 
                 if (distance < min_distance):
                     min_distance = distance
                     min_x_val = x_val
                     min_y_val = y_val
 
-
         return min_x_val, min_y_val, min_distance
 
 
     def update_sensor_values(self, map):
-        self.sensor_left_data = self.read_sensor_value([[self.sensors[0][0], self.sensors[1][0]], [self.sensors[0][1], self.sensors[1][1]]], map)
-        self.sensor_left_up_data = self.read_sensor_value([[self.sensors[0][2], self.sensors[1][2]], [self.sensors[0][3], self.sensors[1][3]]], map)
-        self.sensor_right_data = self.read_sensor_value([[self.sensors[0][4], self.sensors[1][4]], [self.sensors[0][5], self.sensors[1][5]]], map)
-        self.sensor_right_up_data = self.read_sensor_value([[self.sensors[0][6], self.sensors[1][6]], [self.sensors[0][7], self.sensors[1][7]]], map)
+        # Splitting the map up so that we dont have to iterate through all the lines to find the distance
+        self.sensor_left_data = self.read_sensor_value([[self.sensors[0][0], self.sensors[1][0]], [self.sensors[0][1], self.sensors[1][1]]], map[0: math.floor(len(map)/2) + 1])
+        self.sensor_left_up_data = self.read_sensor_value([[self.sensors[0][2], self.sensors[1][2]], [self.sensors[0][3], self.sensors[1][3]]], map[0: math.floor(len(map)/2) + 1])
+        self.sensor_right_data = self.read_sensor_value([[self.sensors[0][4], self.sensors[1][4]], [self.sensors[0][5], self.sensors[1][5]]], map[math.floor(len(map)/2) - 1: -1])
+        self.sensor_right_up_data = self.read_sensor_value([[self.sensors[0][6], self.sensors[1][6]], [self.sensors[0][7], self.sensors[1][7]]], map[math.floor(len(map)/2) - 1: -1])
         self.sensor_up_data = self.read_sensor_value([[self.sensors[0][8], self.sensors[1][8]], [self.sensors[0][9], self.sensors[1][9]]], map)
 
 
     def check_crash(self):
-        crash_distance = 5
+        crash_distance = 6
         if ((self.sensor_left_data[2] <= crash_distance) or (self.sensor_left_up_data[2] <= crash_distance) or (self.sensor_right_data[2] <= crash_distance) or (self.sensor_right_up_data[2] <= crash_distance) or (self.sensor_up_data[2] <= crash_distance)):
             self.crash = True
             self.vel = 0
@@ -254,7 +261,7 @@ class Car:
         line = [[(goal_koord[0] - 70, goal_koord[1]), (goal_koord[0] + 70, goal_koord[1])]]
 
         data = self.read_sensor_value([[self.sensors[0][8], self.sensors[1][8]], [self.sensors[0][9], self.sensors[1][9]]], line)   #checking just for the up sensor
-        if (data[2] <= 6):
+        if (data[2] <= 10):
             self.finished = True
             self.crash = True
 

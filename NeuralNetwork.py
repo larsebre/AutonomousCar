@@ -24,16 +24,22 @@ class NeuralNetwork:
         output = np.matmul(self.input_layer, inputs)
         output = np.matmul(self.hidden_layer, output)
         output = [[0.7 * np.tanh(output[0][0])], [0.7 * np.tanh(output[1][0])], [0.7 * np.tanh(output[2][0])], [0.7 * np.tanh(output[3][0])]]
-        #output = [[1/(1 + np.exp(-output[0][0]))], [1/(1 + np.exp(-output[1][0]))], [1/(1 + np.exp(-output[2][0]))], [1/(1 + np.exp(-output[3][0]))]]
         output = np.matmul(self.output_layer, output)
 
         return output
 
-    def randomize_weights(self):
+    def randomize_weights(self, variance):
 
-        self.input_layer = self.input_layer + (1 - (np.random.rand(3, 5) * 2)) * 0.2
-        self.hidden_layer = self.hidden_layer + (1 - (np.random.rand(4, 3) * 2)) * 0.2
-        self.output_layer = self.output_layer + (1 - (np.random.rand(2, 4) * 2)) * 0.2
+        layer = random.randint(1,2)
+
+        if (layer == 1):
+            self.input_layer = self.input_layer + (1 - (np.random.rand(3, 5) * 2)) * variance
+            self.hidden_layer = self.hidden_layer + (1 - (np.random.rand(4, 3) * 2)) * variance
+
+        elif (layer == 2):
+            self.hidden_layer = self.hidden_layer + (1 - (np.random.rand(4, 3) * 2)) * variance
+            self.output_layer = self.output_layer + (1 - (np.random.rand(2, 4) * 2)) * variance
+
 
         constraint(self.input_layer, 1.0)
         constraint(self.hidden_layer, 1.0)

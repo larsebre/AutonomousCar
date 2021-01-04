@@ -2,7 +2,7 @@ from tkinter import *
 import numpy as np
 import Car as c
 import Map as m
-import Perceptron as p
+import NeuralNetwork as p
 import random
 import time
 import sys
@@ -29,12 +29,9 @@ map.load_maps('/Users/larseikbreirem/Desktop/Maskinlæring kurs/AutonomousCar/Tr
 cars = []
 
 #Generate neural network
-
 input_layer = (1 - (np.random.rand(3,5) * 2))
 hidden_layer = (1 - (np.random.rand(4,3) * 2))
 output_layer = (1 - (np.random.rand(2,4) * 2))
-
-print(input_layer)
 
 brain = p.NeuralNetwork(input_layer, hidden_layer, output_layer)
 new_brain = copy.copy(brain)
@@ -47,6 +44,7 @@ def max(a,b):
         return a
     return b
 
+variance_in_cars_brain = 0.3
 
 while True:
 
@@ -63,23 +61,17 @@ while True:
     brain = copy.copy(new_brain)
     brain1 = copy.copy(new_brain1)
 
-    for i in range(21):
+    for i in range(25):
         cars.append(c.Car(start_koord[0], start_koord[1], cvs))
 
-    for i in range(21):
-        if (i < 14):
+    for i in range(25):
+        if (i < 21):
             cars[i].brain = copy.copy(brain)
         else:
             cars[i].brain = copy.copy(brain1)
 
-    # Add one random car each generation, with no enharitage from the others
-    car1 = c.Car(start_koord[0], start_koord[1], cvs)
-    car1.brain = p.NeuralNetwork((1 - (np.random.rand(3,5) * 2)), (1 - (np.random.rand(4,3) * 2)), (1 - (np.random.rand(2,4) * 2)))
-    cars.append(car1)
-
-
     for i in range(len(cars)):
-        cars[i].brain.randomize_weights()
+        cars[i].brain.randomize_weights(variance_in_cars_brain)
 
     outputs = [[[0], [0]]] * len(cars)
 
@@ -87,13 +79,12 @@ while True:
 
     while (new_generation == False):
         time_before = time.time()
-        counter = counter + 1
 
         for i in range(len(cars)):
 
             if (cars[i].crash == False):
                 omega = 50 * np.tanh(outputs[i][1][0])
-                thrust = 1000 + cars[0].u_max / (1 + np.exp(-outputs[i][0][0]))
+                thrust = 6000 + cars[i].u_max * np.tanh(outputs[i][0][0])
                 cars[i].calc_dynamics(thrust, omega)
                 cars[i].calc_transelation(omega)
                 cars[i].update_sensor_values(current_map)
@@ -101,17 +92,12 @@ while True:
                 cars[i].check_crash()
                 outputs[i] = cars[i].brain.calculate_outputs(np.array([[cars[i].sensor_left_data[2]], [cars[i].sensor_left_up_data[2]], [cars[i].sensor_right_data[2]],[cars[i].sensor_right_up_data[2]], [cars[i].sensor_up_data[2]]]))
 
-        
-
-        if (counter == 1):
-            # Manage 30Hz screen update, 30FPS
-            for i in range(len(cars)):
-                cars[i].rotate_car()
-                cars[i].update_car()
-                map.generation_control(generation)
-
-            window.update()
-            counter = 0
+        #Updating the screen in 60 FPS
+        for i in range(len(cars)):
+            cars[i].rotate_car()
+            cars[i].update_car()
+            map.generation_control(generation)
+        window.update()
 
 
         check = 0
@@ -134,9 +120,11 @@ while True:
                     new_brain = copy.copy(cars[i].brain)
                 cars[i].delete_car()
 
-            best_car = finished_cars[0]
-            best_time = finished_cars[0].time
+
             if (len(finished_cars) > 0):
+                best_car = finished_cars[0]
+                best_time = finished_cars[0].time
+
                 for i in range(len(finished_cars)):
                     if (finished_cars[i].time < best_time):
                         best_car = finished_cars[i]
@@ -144,6 +132,8 @@ while True:
 
                 new_brain = copy.copy(best_car.brain)
                 new_brain1 = copy.copy(best_car.brain)
+
+                variance_in_cars_brain = 0.05
 
             cars.clear()
             new_generation = True
