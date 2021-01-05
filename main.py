@@ -25,7 +25,7 @@ period = 1.0/frequency
 counter = 0
 
 map = m.Map(cvs=cvs)
-map.load_maps('/Users/larseikbreirem/Desktop/Maskinlæring kurs/AutonomousCar/Tracks/CarTracks.txt')
+map.load_maps('.../CarTracks.txt')
 cars = []
 
 #Generate neural network
@@ -61,17 +61,25 @@ while True:
     brain = copy.copy(new_brain)
     brain1 = copy.copy(new_brain1)
 
-    for i in range(25):
+    number_of_cars = 28
+
+    for i in range(number_of_cars):
         cars.append(c.Car(start_koord[0], start_koord[1], cvs))
 
-    for i in range(25):
+    for i in range(len(cars)):
         if (i < 21):
             cars[i].brain = copy.copy(brain)
         else:
             cars[i].brain = copy.copy(brain1)
 
+    #Adding variance to the inherited "brain"
     for i in range(len(cars)):
-        cars[i].brain.randomize_weights(variance_in_cars_brain)
+        if (i < 11):
+            cars[i].brain.randomize_weights(variance_in_cars_brain)
+        elif ((i >= 11) and (i < 20)):
+            cars[i].brain.randomize_weights(variance_in_cars_brain / 5.0)
+        else:
+            cars[i].brain.randomize_weights(variance_in_cars_brain / 2.0)
 
     outputs = [[[0], [0]]] * len(cars)
 
@@ -132,8 +140,6 @@ while True:
 
                 new_brain = copy.copy(best_car.brain)
                 new_brain1 = copy.copy(best_car.brain)
-
-                variance_in_cars_brain = 0.05
 
             cars.clear()
             new_generation = True
