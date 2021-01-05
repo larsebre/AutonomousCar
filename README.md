@@ -19,4 +19,4 @@ If there are several tracks saved to the file, the program will switch between t
 
 CLICK ON THE PICTURE TO SEE A VIDEO OF THE SELF-LEARNING CARS:
 
-[![IMAGE ALT TEXT HERE](https://www.youtube.com/watch?v=KAJ82auTic8&feature=youtu.be)
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/KAJ82auTic8/0.jpg)](https://www.youtube.com/watch?v=KAJ82auTic8&feature=youtu.be)
