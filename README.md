@@ -1,4 +1,4 @@
-# AutonomousCar (Machine learning)
+# AutonomousCars (Machine learning)
 
 In this project I made cars on a car track, where every car has its own neural network to learn to drive without crashing.
 
